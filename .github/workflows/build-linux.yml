@@ -1,0 +1,46 @@
+name: Build – Linux
+
+on:
+  push:
+    branches: ["main", "release/**"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Linux Bundle
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux desktop dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            clang cmake ninja-build pkg-config \
+            libgtk-3-dev liblzma-dev libstdc++-12-dev
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Linux release bundle
+        run: flutter build linux --release
+
+      - name: Package archive
+        run: |
+          tar -czf luna-linux-x64.tar.gz \
+            -C build/linux/x64/release bundle
+
+      - name: Upload artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: luna-linux-x64
+          path: luna-linux-x64.tar.gz
+          if-no-files-found: error

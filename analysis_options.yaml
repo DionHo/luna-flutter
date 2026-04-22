@@ -1,0 +1,24 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # Treat informational hints as errors so `flutter analyze --fatal-infos` catches them in CI.
+    unused_import: error
+    unused_local_variable: error
+    dead_code: error
+
+linter:
+  rules:
+    # Style
+    always_declare_return_types: true
+    avoid_print: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    sort_pub_dependencies: true
+    use_string_buffers: true
+
+    # Safety
+    avoid_dynamic_calls: true
+    cancel_subscriptions: true
+    close_sinks: true
+    unawaited_futures: true

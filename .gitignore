@@ -1,0 +1,42 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Model files — never commit large binary model files
+*.gguf
+*.bin
+*.onnx
+*.litertlm
+assets/models/
+
+# Android signing
+android/app/keystore.jks
+android/key.properties
+
+# iOS signing
+ios/ExportOptions.plist
+*.p12
+*.mobileprovision
+
+# Coverage
+coverage/
+
+# Symbols (Android obfuscation)
+build/symbols/

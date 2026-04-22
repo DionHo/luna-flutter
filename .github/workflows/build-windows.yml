@@ -1,0 +1,37 @@
+name: Build – Windows
+
+on:
+  push:
+    branches: ["main", "release/**"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Windows MSIX
+    runs-on: windows-2022
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows release
+        run: flutter build windows --release
+
+      - name: Create MSIX
+        run: dart run msix:create
+
+      - name: Upload artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: luna-windows-x64
+          path: build\windows\x64\runner\Release\luna_flutter.msix
+          if-no-files-found: warn
