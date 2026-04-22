@@ -29,6 +29,11 @@
     }
   },
   "remoteUser": "vscode",
-  // Make scripts executable and pull pub dependencies on first container start.
-  "postCreateCommand": "chmod +x scripts/*.sh && flutter pub get"
+  // Keep the container alive when the Remote-SSH session disconnects so a
+  // reconnect via VS Code Remote-SSH + Dev Containers is instant.
+  "shutdownAction": "none",
+  // On first container creation: make scripts executable, bootstrap the Flutter
+  // SDK (downloads Dart SDK + Linux engine artifacts on first use), then fetch
+  // pub dependencies.
+  "postCreateCommand": "chmod +x scripts/*.sh && flutter precache --linux && flutter pub get"
 }

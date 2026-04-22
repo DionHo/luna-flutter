@@ -14,7 +14,7 @@ dependencies:
   nobodywho: ^1.0.0
 
   # On-device TTS
-  kokoro_tts_flutter: ^1.0.0
+  kokoro_tts_flutter: ^0.2.0+1
 
   # State management
   flutter_riverpod: ^2.5.0
