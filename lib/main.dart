@@ -6,6 +6,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'app.dart';
 import 'core/services/model_bootstrap_service.dart';
+import 'core/services/startup_logger.dart';
 import 'features/chat/providers/chat_provider.dart';
 
 void main() async {
@@ -19,6 +20,10 @@ void main() async {
     databaseFactory = databaseFactoryFfi;
   }
 
+  final log = StartupLogger();
+  log.add('=== Luna startup ===');
+  log.add('Platform : ${defaultTargetPlatform.name}');
+
   // NobodyWho.init() sets up the native llama.cpp library (flutter_rust_bridge).
   // Track success explicitly — if it fails the native Rust bridge is unavailable
   // and any subsequent call to nobodywho functions will throw
@@ -28,7 +33,9 @@ void main() async {
   try {
     await NobodyWho.init();
     nobodywhoReady = true;
+    log.add('NobodyWho.init() : OK');
   } catch (e) {
+    log.add('NobodyWho.init() : FAILED — $e');
     debugPrint('NobodyWho.init() failed — AI engine unavailable: $e');
   }
 
@@ -38,10 +45,20 @@ void main() async {
   if (nobodywhoReady) {
     try {
       await bootstrap.init();
-    } catch (_) {
+      log.add('ModelBootstrap     : OK — ${bootstrap.llmPath}');
+    } catch (e) {
+      log.add('ModelBootstrap     : FAILED — $e');
       // Model files not present (e.g. dev build without download_models.sh).
     }
+  } else {
+    log.add('ModelBootstrap     : SKIPPED (NobodyWho not ready)');
   }
+
+  log.add('bootstrap.isReady  : ${bootstrap.isReady}');
+  if (StartupLogger.logFilePath != null) {
+    log.add('Log written to     : ${StartupLogger.logFilePath}');
+  }
+  await log.flush();
 
   runApp(
     ProviderScope(

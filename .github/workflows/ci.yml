@@ -28,5 +28,24 @@ jobs:
       - name: Analyze (fatal-infos)
         run: flutter analyze --fatal-infos
 
-      - name: Run tests
-        run: flutter test --coverage
+      - name: Run unit & widget tests
+        run: flutter test --coverage --exclude-tags=requires-models
+
+      - name: Cache GGUF models
+        id: model-cache
+        uses: actions/cache@v4
+        with:
+          path: assets/models
+          key: models-gemma4-e2b-v1
+
+      - name: Download GGUF models (if not cached)
+        if: steps.model-cache.outputs.cache-hit != 'true'
+        run: bash scripts/download_models.sh
+
+      - name: Run model inference tests (text + audio)
+        run: |
+          flutter test \
+            test/text_inference_test.dart \
+            test/audio_inference_test.dart \
+            test/model_bootstrap_path_test.dart \
+            --reporter=compact

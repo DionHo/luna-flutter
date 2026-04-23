@@ -54,14 +54,18 @@
 - [ ] `lib/features/chat/widgets/input_bar.dart` — kept as fallback; not used in main UI yet
 
 ## Phase 2 – AI Voice Assistant (Multimodal)
-- 🔧 `scripts/download_models.sh` — downloads Gemma 4 E2B + BF16 mmproj to `assets/models/`
-- 🔧 CI workflows updated — model download with `actions/cache` before flutter build
-- 🔧 `lib/core/services/model_bootstrap_service.dart` — locates bundled model files at runtime
-- 🔧 `lib/core/services/audio_recorder_service.dart` — microphone capture via `record` package
-- 🔧 `lib/core/services/llm_service.dart` — multimodal `Model.load` + `askWithPrompt(AudioPart)`
-- 🔧 `lib/features/chat/providers/chat_provider.dart` — PTT starts/stops recorder, sends audio to model
-- [ ] Test on Linux desktop (devcontainer) end-to-end
-- [ ] Test on Windows desktop end-to-end
+- ✅ `scripts/download_models.sh` — downloads Gemma 4 E2B + BF16 mmproj to `assets/models/`
+- ✅ CI workflows updated — model download with `actions/cache` before flutter build
+- ✅ `lib/core/services/model_bootstrap_service.dart` — locates bundled model files at runtime
+- ✅ `lib/core/services/audio_recorder_service.dart` — microphone capture via `record` package
+- ✅ `lib/core/services/llm_service.dart` — multimodal `Model.load` + `askWithPrompt(AudioPart)`
+- ✅ `lib/core/services/startup_logger.dart` — appending startup diagnostics log written next to exe
+- ✅ `lib/features/chat/providers/chat_provider.dart` — PTT starts/stops recorder, sends audio to model
+- ✅ `test/audio_inference_test.dart` — no-UI integration test; confirms Gemma 4 audio path works on Linux
+- ✅ `test/text_inference_test.dart` — no-UI integration test; confirms Gemma 4 text path + `NobodyWho.init()` on Linux
+- ✅ `test/model_bootstrap_path_test.dart` — path construction unit tests; confirms bundle layout is correct
+- ✅ CI (`ci.yml`) runs all three model tests with cached model download
+- 🔧 Test on Windows desktop end-to-end (vcomp140.dll bundled in CI; awaiting re-test)
 - [ ] Android microphone permission + mobile model extraction
 - [ ] iOS microphone permission + mobile model extraction
 
