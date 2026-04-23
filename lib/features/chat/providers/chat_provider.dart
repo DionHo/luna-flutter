@@ -232,7 +232,7 @@ class ChatNotifier extends AsyncNotifier<ChatState> {
           id: 0,
           role: 'assistant',
           content:
-              '⚠️ No model loaded. Check luna_debug.log next to luna_flutter.exe for details.',
+              '⚠️ No model loaded. Place the GGUF model files in data\\flutter_assets\\assets\\models\\ next to luna_flutter.exe.',
           timestamp: DateTime.now(),
         ),
       );
@@ -361,7 +361,7 @@ class ChatNotifier extends AsyncNotifier<ChatState> {
           id: 0,
           role: 'assistant',
           content:
-              '⚠️ No model loaded. Check luna_debug.log next to luna_flutter.exe for details.',
+              '⚠️ No model loaded. Place the GGUF model files in data\\flutter_assets\\assets\\models\\ next to luna_flutter.exe.',
           timestamp: DateTime.now(),
         ),
       );

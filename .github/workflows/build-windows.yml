@@ -44,6 +44,33 @@ jobs:
         continue-on-error: true
         run: dart run msix:create --no-sign
 
+      - name: Bundle vcomp140.dll (OpenMP runtime)
+        shell: pwsh
+        run: |
+          # nobodywho_flutter.dll links against vcomp140.dll (the MSVC OpenMP runtime).
+          # Flutter does not bundle it automatically and it is not in the standard
+          # VC++ Redistributable, so we copy it from the VS 2022 installation here.
+          $dest = "build\windows\x64\runner\Release"
+
+          # Prefer the x64 redistribution copy inside VS; fall back to System32.
+          $dll = Get-ChildItem `
+            "C:\Program Files\Microsoft Visual Studio\2022" `
+            -Recurse -Filter "vcomp140.dll" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -notmatch "(?i)(arm|x86[^_]|amd64_x86)" } |
+            Select-Object -First 1
+
+          if (-not $dll) {
+            $dll = Get-Item "C:\Windows\System32\vcomp140.dll" -ErrorAction SilentlyContinue
+          }
+
+          if ($dll) {
+            Copy-Item $dll.FullName $dest
+            Write-Host "Bundled vcomp140.dll from: $($dll.FullName)"
+          } else {
+            Write-Error "vcomp140.dll not found on this runner — nobodywho will fail to load on machines without VS OpenMP installed."
+            exit 1
+          }
+
       - name: Upload exe bundle
         uses: actions/upload-artifact@v4
         with:
