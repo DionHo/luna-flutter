@@ -17,6 +17,9 @@ jobs:
       - name: Install Linux desktop dependencies
         run: |
           sudo apt-get update -y
+          # libunwind-dev must be installed first; it is a transitive dep of
+          # libgstreamer1.0-dev and the ubuntu-22.04 runner has it held/pinned.
+          sudo apt-get install -y libunwind-dev
           sudo apt-get install -y \
             clang cmake ninja-build pkg-config \
             libgtk-3-dev liblzma-dev libstdc++-12-dev \
