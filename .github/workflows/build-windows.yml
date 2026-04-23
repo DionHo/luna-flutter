@@ -44,6 +44,17 @@ jobs:
         continue-on-error: true
         run: dart run msix:create --no-sign
 
+      - name: Install Vulkan SDK
+        # The windows-2022 runner image no longer ships the Vulkan SDK, so we
+        # install it explicitly here.  The humbletim action downloads only the
+        # Loader + Headers components (not the full SDK), sets VULKAN_SDK, and
+        # caches the download for subsequent runs.
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.3.204.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
       - name: Bundle required DLLs (OpenMP + Vulkan)
         shell: pwsh
         run: |
