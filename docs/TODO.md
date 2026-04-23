@@ -17,24 +17,27 @@
 - ✅ `.devcontainer/` — Ubuntu 24.04 devcontainer with Flutter stable, GTK3 deps, Git Graph, GitHub Copilot extensions
 
 ## Phase 1 – Flutter Project Skeleton
-- [ ] `flutter create` — generate platform scaffolding for Linux, Windows, Android, iOS
-- [ ] `pubspec.yaml` — add `nobodywho`, `kokoro_tts_flutter`, `flutter_riverpod`, `sqflite`, `path_provider`, `audioplayers`
-- [ ] `analysis_options.yaml` — strict lints
-- [ ] `lib/main.dart` — `ProviderScope` + `runApp`
-- [ ] `lib/app.dart` — `MaterialApp.router`, theme
-- [ ] `lib/core/error/app_exception.dart` — typed exception hierarchy
-- [ ] `lib/core/models/message.dart` — `ConversationTurn` model
-- [ ] `lib/core/models/model_config.dart` — `ModelConfig` value object
-- [ ] `lib/core/services/llm_service.dart` — `LlmService` (nobodywho wrapper)
-- [ ] `lib/core/services/tts_service.dart` — `TtsService` (kokoro wrapper)
-- [ ] `lib/core/services/conversation_repository.dart` — SQLite persistence
-- [ ] `lib/features/chat/providers/chat_provider.dart` — `ChatNotifier`
-- [ ] `lib/features/chat/screens/chat_screen.dart`
-- [ ] `lib/features/chat/widgets/message_bubble.dart`
-- [ ] `lib/features/chat/widgets/input_bar.dart`
-- [ ] `lib/features/settings/providers/settings_provider.dart`
-- [ ] `lib/features/settings/screens/settings_screen.dart`
-- [ ] `lib/features/settings/widgets/model_path_picker.dart`
+- ✅ `flutter create` — generate platform scaffolding for Linux, Windows, Android, iOS
+- ✅ `pubspec.yaml` — add `nobodywho`, `kokoro_tts_flutter`, `flutter_riverpod`, `sqflite`, `path_provider`, `audioplayers`
+- ✅ `analysis_options.yaml` — strict lints
+- ✅ `lib/main.dart` — `ProviderScope` + `runApp`; `NobodyWho.init()` wrapped in try-catch for stub mode
+- ✅ `lib/app.dart` — `MaterialApp`, dark theme (Material 3)
+- ✅ `lib/core/error/app_exception.dart` — typed exception hierarchy
+- ✅ `lib/core/models/message.dart` — `ConversationTurn` model
+- ✅ `lib/core/models/session.dart` — `Session` model (multi-session support)
+- ✅ `lib/core/models/model_config.dart` — `ModelConfig` value object
+- ✅ `lib/core/services/llm_service.dart` — `LlmService` (nobodywho wrapper)
+- ✅ `lib/core/services/tts_service.dart` — `TtsService` (kokoro wrapper)
+- ✅ `lib/core/services/conversation_repository.dart` — multi-session SQLite persistence
+- ✅ `lib/features/chat/providers/chat_provider.dart` — `ChatNotifier` with session CRUD + PTT stubs
+- ✅ `lib/features/chat/screens/chat_screen.dart` — session bar + chat list + push-to-talk layout
+- ✅ `lib/features/chat/widgets/message_bubble.dart`
+- ✅ `lib/features/chat/widgets/session_bar.dart` — new/delete/switch sessions
+- ✅ `lib/features/chat/widgets/push_to_talk_button.dart` — hold-to-talk button (STT stub)
+- ✅ `lib/features/settings/providers/settings_provider.dart`
+- ✅ `lib/features/settings/screens/settings_screen.dart`
+- ✅ `lib/features/settings/widgets/model_path_picker.dart`
+- [ ] `lib/features/chat/widgets/input_bar.dart` — kept as fallback; not used in main UI yet
 
 ## Phase 2 – GitHub Actions CI/CD
 - ✅ `.github/workflows/ci.yml` — analyze + test on every push/PR
