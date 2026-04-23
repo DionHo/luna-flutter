@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/error/app_exception.dart';
@@ -92,17 +93,27 @@ class ChatNotifier extends AsyncNotifier<ChatState> {
   @override
   Future<ChatState> build() async {
     // Auto-load the bundled Gemma 4 model if the bootstrap succeeded.
+    // Catch ModelLoadException here so a failed load degrades gracefully:
+    // the UI still works and shows "⚠️ No model loaded." instead of a
+    // full-screen error.  The most common failure mode on Windows is
+    // NobodyWho.init() having failed silently (flutter_rust_bridge not
+    // initialized), which now results in a clear log message and a usable UI.
     final bootstrap = ref.read(modelBootstrapProvider);
     if (bootstrap.isReady) {
       final llm = ref.read(llmServiceProvider);
       if (!llm.isModelLoaded) {
-        await llm.loadModel(
-          ModelConfig(
-            modelPath: bootstrap.llmPath,
-            projectionModelPath: bootstrap.mmprojPath,
-            systemPrompt: 'Answer the question.',
-          ),
-        );
+        try {
+          await llm.loadModel(
+            ModelConfig(
+              modelPath: bootstrap.llmPath,
+              projectionModelPath: bootstrap.mmprojPath,
+              systemPrompt: 'Answer the question.',
+            ),
+          );
+        } on ModelLoadException catch (e) {
+          // Non-fatal: the chat window will show the "no model" placeholder.
+          debugPrint('Auto-load failed — running without model: $e');
+        }
       }
     }
 

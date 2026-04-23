@@ -15,9 +15,12 @@ import '../error/app_exception.dart';
 /// Call [init] once at startup.  After a successful [init], [llmPath] and
 /// [mmprojPath] are safe to read.
 class ModelBootstrapService {
-  static const _llmAssetKey =
-      'assets/models/gemma-4-E2B-it-Q4_K_M.gguf';
-  static const _mmprojAssetKey = 'assets/models/mmproj-BF16.gguf';
+  // Use individual filename constants so path.join always produces
+  // OS-native separators.  Embedding forward slashes in the last argument
+  // (e.g. 'assets/models/file.gguf') causes mixed-separator paths on Windows
+  // which some native code rejects.
+  static const _llmFilename = 'gemma-4-E2B-it-Q4_K_M.gguf';
+  static const _mmprojFilename = 'mmproj-BF16.gguf';
 
   String? _llmPath;
   String? _mmprojPath;
@@ -48,10 +51,10 @@ class ModelBootstrapService {
     }
 
     final exeDir = path.dirname(Platform.resolvedExecutable);
-    final llm =
-        path.join(exeDir, 'data', 'flutter_assets', _llmAssetKey);
-    final mmproj =
-        path.join(exeDir, 'data', 'flutter_assets', _mmprojAssetKey);
+    final llm = path.join(
+        exeDir, 'data', 'flutter_assets', 'assets', 'models', _llmFilename);
+    final mmproj = path.join(
+        exeDir, 'data', 'flutter_assets', 'assets', 'models', _mmprojFilename);
 
     if (!File(llm).existsSync()) {
       throw ModelLoadException(

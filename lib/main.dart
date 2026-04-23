@@ -19,22 +19,28 @@ void main() async {
     databaseFactory = databaseFactoryFfi;
   }
 
-  // NobodyWho.init() sets up the native llama.cpp library.  It is safe to
-  // continue without it — the chat provider will show a "no model loaded"
-  // placeholder when sendMessage is called with no model file configured.
+  // NobodyWho.init() sets up the native llama.cpp library (flutter_rust_bridge).
+  // Track success explicitly — if it fails the native Rust bridge is unavailable
+  // and any subsequent call to nobodywho functions will throw
+  // "flutter_rust_bridge has not been initialized".  We must NOT attempt model
+  // loading in that case, but we still want the rest of the app to work.
+  bool nobodywhoReady = false;
   try {
     await NobodyWho.init();
-  } catch (_) {
-    // Ignore: the app works in stub mode until the user picks a model.
+    nobodywhoReady = true;
+  } catch (e) {
+    debugPrint('NobodyWho.init() failed — AI engine unavailable: $e');
   }
 
   // Resolve bundled model paths.  Failures are non-fatal: the chat screen
   // shows a placeholder message when the model is unavailable.
   final bootstrap = ModelBootstrapService();
-  try {
-    await bootstrap.init();
-  } catch (_) {
-    // Model files not present (e.g. dev build without download_models.sh).
+  if (nobodywhoReady) {
+    try {
+      await bootstrap.init();
+    } catch (_) {
+      // Model files not present (e.g. dev build without download_models.sh).
+    }
   }
 
   runApp(
