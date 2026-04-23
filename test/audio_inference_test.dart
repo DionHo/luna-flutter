@@ -27,8 +27,10 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     try {
       await nobodywho.NobodyWho.init();
-    } catch (_) {
-      // Already initialised (e.g. when the test suite is run alongside others).
+    } on StateError {
+      // NobodyWho.init() was already called in this test process — ignore.
+      // Any other exception (e.g. library not found) is a real failure and
+      // must propagate so that the test suite fails loudly.
     }
   });
 

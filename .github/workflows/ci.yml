@@ -29,7 +29,25 @@ jobs:
         run: flutter analyze --fatal-infos
 
       - name: Run unit & widget tests
-        run: flutter test --coverage --exclude-tags=requires-models
+        # Only run tests that do not need the nobodywho native library or model
+        # files.  The inference tests are in a separate step below.
+        run: flutter test --coverage test/widget_test.dart test/model_bootstrap_path_test.dart
+
+      - name: Resolve nobodywho native library for tests
+        # flutter test does NOT invoke cmake, so the nobodywho binary resolver
+        # never runs and libnobodywho_flutter.so is not on the library path.
+        # Download it directly from the same GitHub release used by the plugin
+        # and expose it via LD_LIBRARY_PATH in the inference test step.
+        run: |
+          NOBODYWHO_DIR=$(find "$HOME/.pub-cache/hosted/pub.dev" -maxdepth 1 \
+            -name "nobodywho-*" -type d | sort -V | tail -1)
+          VERSION=$(basename "$NOBODYWHO_DIR" | sed 's/nobodywho-//')
+          echo "nobodywho version: $VERSION"
+          URL="https://github.com/nobodywho-ooo/nobodywho/releases/download/nobodywho-flutter-v${VERSION}/libnobodywho-flutter-x86_64-unknown-linux-gnu-release.so"
+          echo "Downloading: $URL"
+          mkdir -p /tmp/nobodywho-lib
+          curl -fL -o /tmp/nobodywho-lib/libnobodywho_flutter.so "$URL"
+          echo "Installed to: /tmp/nobodywho-lib/libnobodywho_flutter.so"
 
       - name: Cache GGUF models
         id: model-cache
@@ -43,6 +61,9 @@ jobs:
         run: bash scripts/download_models.sh
 
       - name: Run model inference tests (text + audio)
+        env:
+          # Make libnobodywho_flutter.so discoverable via DynamicLibrary.open.
+          LD_LIBRARY_PATH: /tmp/nobodywho-lib
         run: |
           flutter test \
             test/text_inference_test.dart \
