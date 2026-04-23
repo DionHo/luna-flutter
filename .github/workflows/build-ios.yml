@@ -24,6 +24,8 @@ jobs:
         run: flutter pub get
 
       - name: Import distribution certificate
+        # Skipped when secrets are not configured (e.g. forks or unsigned dev builds).
+        if: ${{ secrets.IOS_CERTIFICATE_BASE64 != '' }}
         env:
           IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
           IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
@@ -39,6 +41,7 @@ jobs:
           security unlock-keychain -p "" build.keychain
 
       - name: Install provisioning profile
+        if: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 != '' }}
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         run: |
@@ -51,6 +54,8 @@ jobs:
         run: flutter build ios --release --no-codesign
 
       - name: Archive with xcodebuild
+        # Only archive (and export IPA) when signing secrets are present.
+        if: ${{ secrets.IOS_CERTIFICATE_BASE64 != '' && secrets.APPLE_TEAM_ID != '' }}
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
@@ -62,6 +67,7 @@ jobs:
             archive | xcpretty
 
       - name: Export IPA
+        if: ${{ secrets.IOS_CERTIFICATE_BASE64 != '' && secrets.APPLE_TEAM_ID != '' }}
         run: |
           xcodebuild -exportArchive \
             -archivePath build/ios/Runner.xcarchive \

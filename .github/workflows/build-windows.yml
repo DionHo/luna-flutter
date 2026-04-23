@@ -27,13 +27,22 @@ jobs:
         run: flutter build windows --release
 
       - name: Create MSIX
-        run: dart run msix:create
+        # continue-on-error so a signing/cert failure never blocks the exe upload.
+        # msix_config in pubspec.yaml sets sign_msix: false to avoid interactive prompts.
+        continue-on-error: true
+        run: dart run msix:create --no-sign
 
-      - name: Upload artefact
+      - name: Upload exe bundle
         uses: actions/upload-artifact@v4
         with:
-          name: luna-windows-x64
-          # Upload the full Release folder so consumers get luna_flutter.exe
-          # and all required DLLs without needing an MSIX installer.
+          name: luna-windows-x64-exe
+          # Full Release folder: luna_flutter.exe + all required DLLs
           path: build\windows\x64\runner\Release\
-          if-no-files-found: warn
+          if-no-files-found: error
+
+      - name: Upload MSIX (if created)
+        uses: actions/upload-artifact@v4
+        with:
+          name: luna-windows-x64-msix
+          path: build\windows\x64\runner\Release\luna_flutter.msix
+          if-no-files-found: ignore

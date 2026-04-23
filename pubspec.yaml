@@ -48,3 +48,13 @@ flutter:
 
   assets:
     - assets/models/   # Placeholder directory; actual models are user-supplied at runtime
+
+msix_config:
+  display_name: Luna
+  publisher_display_name: Luna
+  identity_name: com.luna.luna_flutter
+  # Do not sign with a test certificate — avoids interactive prompts in CI.
+  # For a signed release, set sign_msix: true and supply a real .pfx via
+  # the WINDOWS_PFX_BASE64 / WINDOWS_PFX_PASSWORD GitHub secrets.
+  sign_msix: false
+  output_path: build\windows\x64\runner\Release
