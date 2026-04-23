@@ -10,7 +10,7 @@ on:
 jobs:
   analyze-and-test:
     name: Analyze & Test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
     steps:
