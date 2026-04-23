@@ -33,5 +33,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: luna-windows-x64
-          path: build\windows\x64\runner\Release\luna_flutter.msix
+          # Upload the full Release folder so consumers get luna_flutter.exe
+          # and all required DLLs without needing an MSIX installer.
+          path: build\windows\x64\runner\Release\
           if-no-files-found: warn

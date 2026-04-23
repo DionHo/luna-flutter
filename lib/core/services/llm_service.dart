@@ -8,11 +8,10 @@ import '../models/model_config.dart';
 /// Only one model may be resident at a time.  Call [loadModel] before
 /// calling [generate]; call [unloadModel] when the model is no longer needed.
 class LlmService {
-  NobodywhoModel? _model;
-  NobodywhoSession? _session;
+  Chat? _chat;
   ModelConfig? _config;
 
-  bool get isModelLoaded => _model != null;
+  bool get isModelLoaded => _chat != null;
 
   /// Loads the GGUF model at [config.modelPath].
   ///
@@ -23,16 +22,13 @@ class LlmService {
       await unloadModel();
     }
     try {
-      final model = NobodywhoModel(modelPath: config.modelPath);
-      await model.load();
-      _model = model;
-      _config = config;
-      _session = model.createSession(
+      _chat = await Chat.fromPath(
+        modelPath: config.modelPath,
         systemPrompt: config.systemPrompt,
-        temperature: config.temperature,
-        topP: config.topP,
-        contextLength: config.contextLength,
+        contextSize: config.contextLength,
+        sampler: SamplerPresets.temperature(temperature: config.temperature),
       );
+      _config = config;
     } catch (e) {
       throw ModelLoadException('Failed to load model at ${config.modelPath}: $e');
     }
@@ -40,10 +36,7 @@ class LlmService {
 
   /// Releases native model resources.
   Future<void> unloadModel() async {
-    _session?.dispose();
-    await _model?.dispose();
-    _session = null;
-    _model = null;
+    _chat = null;
     _config = null;
   }
 
@@ -51,12 +44,12 @@ class LlmService {
   ///
   /// Throws [InferenceException] if the model is not loaded or generation fails.
   Stream<String> generate(String prompt) {
-    final session = _session;
-    if (session == null) {
+    final chat = _chat;
+    if (chat == null) {
       throw const InferenceException('No model loaded. Call loadModel() first.');
     }
     try {
-      return session.getCompletion(prompt: prompt);
+      return chat.ask(prompt);
     } catch (e) {
       throw InferenceException('Inference failed: $e');
     }

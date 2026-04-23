@@ -6,12 +6,14 @@ A ready-to-use devcontainer is provided under `.devcontainer/`.
 
 | File | Purpose |
 |------|---------|
-| `.devcontainer/Dockerfile` | Ubuntu 24.04 (noble) base with Flutter stable, clang, cmake, ninja, GTK3 |
-| `.devcontainer/devcontainer.json` | VS Code extensions (Flutter, Dart, Git Graph, GitHub Copilot), `postCreateCommand` |
+| `.devcontainer/Dockerfile` | Ubuntu 24.04 base with Flutter stable, Linux desktop deps, Android SDK command-line tools, Java 17, **gh CLI** |
+| `.devcontainer/devcontainer.json` | VS Code extensions (Flutter, Dart, Git Graph, GitHub Copilot), Android env vars, `postCreateCommand` |
 
-The container supports **Linux builds and tests** out of the box.  Android,
-Windows, and iOS builds are handled by CI runners with the appropriate
-toolchains.
+The container supports **Linux and Android builds/tests** out of the box.
+Windows and iOS release builds are handled by CI runners with the appropriate
+native toolchains. `build_windows_cross.sh` triggers the GitHub Actions Windows
+workflow via the **gh CLI** and downloads the compiled exe bundle to
+`build/windows-artifact/` without requiring a Windows machine.
 
 To pin a specific Flutter release, set the `FLUTTER_CHANNEL` build arg in
 `devcontainer.json` (e.g. `"3.29.3"`).
@@ -21,7 +23,8 @@ To pin a specific Flutter release, set the `FLUTTER_CHANNEL` build arg in
 | Platform | Runner (CI) | Output artefact | Script |
 |----------|-------------|-----------------|--------|
 | Linux x64 | `ubuntu-22.04` | `.tar.gz` bundle | `scripts/build_linux.sh` |
-| Windows x64 | `windows-2022` | MSIX package | `scripts/build_windows.ps1` |
+| Windows x64 | `windows-2022` | exe bundle + MSIX (full Release dir) | `scripts/build_windows.ps1` |
+| Windows (from Linux/macOS devcontainer) | GH Actions via gh CLI | `build/windows-artifact/` (exe + DLLs + MSIX) | `scripts/build_windows_cross.sh` |
 | Android | `ubuntu-22.04` | `.aab` (release) | `scripts/build_android.sh` |
 | iOS | `macos-14` | `.ipa` (signed) | `scripts/build_ios.sh` |
 | All (local) | host OS | per-platform artefacts | `scripts/build_all.sh` |
@@ -32,7 +35,7 @@ To pin a specific Flutter release, set the `FLUTTER_CHANNEL` build arg in
 |------|---------|---------|
 | `.github/workflows/ci.yml` | Push / PR (all branches) | `flutter analyze` + `flutter test` |
 | `.github/workflows/build-linux.yml` | Push to `main`, `release/**` | Build Linux bundle artefact |
-| `.github/workflows/build-windows.yml` | Push to `main`, `release/**` | Build Windows MSIX artefact |
+| `.github/workflows/build-windows.yml` | Push to `main`, `release/**` | Build Windows exe bundle + MSIX artefact |
 | `.github/workflows/build-android.yml` | Push to `main`, `release/**` | Build Android AAB artefact |
 | `.github/workflows/build-ios.yml` | Push to `main`, `release/**` | Build signed iOS IPA artefact |
 

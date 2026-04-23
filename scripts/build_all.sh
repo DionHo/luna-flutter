@@ -7,6 +7,7 @@
 # Then detects the host OS and available toolchains:
 #   Linux   → flutter build linux   (always)
 #             flutter build apk     (only when ANDROID_HOME is set)
+#             windows via gh CI     (triggers GH Actions, downloads artifact)
 #   macOS   → flutter build ios     (only when Xcode is present)
 #             flutter build apk     (only when ANDROID_HOME is set)
 #   Windows → flutter build windows (always, via PowerShell subscript)
@@ -58,12 +59,8 @@ build_ios() {
 }
 
 build_windows() {
-    if command -v pwsh &>/dev/null; then
-        step "Building Windows MSIX"
-        pwsh -File "$SCRIPT_DIR/build_windows.ps1"
-    else
-        skip "Windows build (requires PowerShell / Windows host)"
-    fi
+    step "Windows cross-build helper"
+    bash "$SCRIPT_DIR/build_windows_cross.sh"
 }
 
 case "$OS" in

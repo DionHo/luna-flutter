@@ -24,7 +24,8 @@ Thumbs.db
 *.bin
 *.onnx
 *.litertlm
-assets/models/
+assets/models/*
+!assets/models/.gitkeep
 
 # Android signing
 android/app/keystore.jks
@@ -40,3 +41,11 @@ coverage/
 
 # Symbols (Android obfuscation)
 build/symbols/
+
+# Local packaging artifacts
+luna-linux-x64.tar.gz
+build/windows-artifact/
+
+# Old source-handoff archive (superseded by gh-based workflow)
+build/windows-cross/
+.artifacts/windows-cross/

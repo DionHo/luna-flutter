@@ -28,6 +28,10 @@
       }
     }
   },
+  "containerEnv": {
+    "ANDROID_HOME": "/opt/android-sdk",
+    "ANDROID_SDK_ROOT": "/opt/android-sdk"
+  },
   "remoteUser": "vscode",
   // Keep the container alive when the Remote-SSH session disconnects so a
   // reconnect via VS Code Remote-SSH + Dev Containers is instant.
@@ -35,5 +39,5 @@
   // On first container creation: make scripts executable, bootstrap the Flutter
   // SDK (downloads Dart SDK + Linux engine artifacts on first use), then fetch
   // pub dependencies.
-  "postCreateCommand": "chmod +x scripts/*.sh && flutter precache --linux && flutter pub get"
+  "postCreateCommand": "chmod +x scripts/*.sh && mkdir -p assets/models && flutter precache --linux --android && flutter pub get"
 }

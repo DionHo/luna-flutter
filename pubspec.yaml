@@ -7,35 +7,38 @@ environment:
   flutter: ">=3.22.0"
 
 dependencies:
+  # Audio playback
+  audioplayers: ^6.0.0
+
   flutter:
     sdk: flutter
-
-  # LLM inference — llama.cpp wrapper
-  nobodywho: ^1.0.0
-
-  # On-device TTS
-  kokoro_tts_flutter: ^0.2.0+1
 
   # State management
   flutter_riverpod: ^2.5.0
 
-  # Local database (conversation persistence)
-  sqflite: ^2.3.0
+  # On-device TTS
+  kokoro_tts_flutter: ^0.2.0+1
+
+  # LLM inference — llama.cpp wrapper
+  nobodywho: ^1.0.0
+
+  # File path helpers (used with path_provider)
+  path: ^1.9.0
 
   # Platform file system paths
   path_provider: ^2.1.0
 
-  # Audio playback
-  audioplayers: ^6.0.0
-
   # Lightweight key-value settings
   shared_preferences: ^2.2.0
 
+  # Local database (conversation persistence)
+  sqflite: ^2.3.0
+
 dev_dependencies:
+  flutter_lints: ^4.0.0
+
   flutter_test:
     sdk: flutter
-
-  flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true

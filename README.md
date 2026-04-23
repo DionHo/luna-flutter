@@ -99,9 +99,25 @@ flutter run          # add -d linux / -d windows / etc.
 # iOS (macOS only)
 ./scripts/build_ios.sh
 
-# Windows (PowerShell)
+# Windows — on a Windows host (PowerShell)
 ./scripts/build_windows.ps1
+
+# Windows — from Linux/macOS devcontainer (requires gh auth login)
+# Triggers GitHub Actions Windows runner, waits, then downloads the exe bundle.
+./scripts/build_windows_cross.sh [--ref main]
 ```
+
+### Devcontainer build notes
+
+The devcontainer now includes Android SDK command-line tools and Java 17, so
+Android compilation works out of the box after container creation.
+
+- Android release bundle output: `build/app/outputs/bundle/release/app-release.aab`
+- Android debug APK output: `build/app/outputs/flutter-apk/app-debug.apk`
+- Linux release bundle output: `build/linux/x64/release/bundle/`
+- Linux packaged archive output: `luna-linux-x64.tar.gz`
+- Windows release bundle (downloaded from GitHub Actions, Linux/macOS path):
+  `build/windows-artifact/` — contains `luna_flutter.exe`, `luna_flutter.msix`, and all required DLLs
 
 ### GitHub Actions
 
