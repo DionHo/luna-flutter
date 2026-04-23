@@ -7,8 +7,10 @@ import '../../../core/models/model_config.dart';
 import '../../../core/models/session.dart';
 import '../../../core/services/audio_recorder_service.dart';
 import '../../../core/services/conversation_repository.dart';
+import '../../../core/services/embedding_service.dart';
 import '../../../core/services/llm_service.dart';
 import '../../../core/services/model_bootstrap_service.dart';
+import '../../../core/services/rag_service.dart';
 import '../../../core/services/tts_service.dart';
 
 // ── Service providers ────────────────────────────────────────────────────────
@@ -35,6 +37,18 @@ final conversationRepositoryProvider = Provider<ConversationRepository>((ref) {
 final audioRecorderProvider = Provider<AudioRecorderService>((ref) {
   final service = AudioRecorderService();
   ref.onDispose(() => service.dispose());
+  return service;
+});
+
+final embeddingServiceProvider = Provider<EmbeddingService>((ref) {
+  final service = EmbeddingService();
+  ref.onDispose(service.dispose);
+  return service;
+});
+
+final ragServiceProvider = Provider<RagService>((ref) {
+  final service = RagService();
+  ref.onDispose(service.dispose);
   return service;
 });
 
@@ -246,10 +260,10 @@ class ChatNotifier extends AsyncNotifier<ChatState> {
       return;
     }
 
-    // 3. Stream tokens from the LLM.
+    // 3. Stream tokens from the LLM, filtering out <think>…</think> blocks.
     final StringBuffer buffer = StringBuffer();
     try {
-      await for (final token in llm.generate(userText.trim())) {
+      await for (final token in skipThinkingTags(llm.generate(userText.trim()))) {
         buffer.write(token);
         final partialTurn = ConversationTurn(
           id: -1,
@@ -302,6 +316,13 @@ class ChatNotifier extends AsyncNotifier<ChatState> {
     }
   }
 
+  /// Cancels in-progress LLM token generation and marks generation as done.
+  void stopGeneration() {
+    ref.read(llmServiceProvider).stopGeneration();
+    final current = state.valueOrNull ?? const ChatState();
+    state = AsyncData(current.copyWith(isGenerating: false));
+  }
+
   /// Called when push-to-talk button is pressed down.
   /// Starts microphone recording into a temporary WAV file.
   Future<void> startListening() async {
@@ -311,8 +332,6 @@ class ChatNotifier extends AsyncNotifier<ChatState> {
       return; // Silently ignore — user will notice the mic never activated.
     }
     await recorder.startRecording();
-    final current = state.valueOrNull ?? const ChatState();
-    state = AsyncData(current.copyWith(isListening: true));
   }
 
   /// Called when push-to-talk button is released.
@@ -375,10 +394,10 @@ class ChatNotifier extends AsyncNotifier<ChatState> {
       return;
     }
 
-    // 3. Stream tokens from the multimodal audio inference.
+    // 3. Stream tokens from the multimodal audio inference, filtering <think> blocks.
     final buffer = StringBuffer();
     try {
-      await for (final token in llm.generateFromAudio(audioPath)) {
+      await for (final token in skipThinkingTags(llm.generateFromAudio(audioPath))) {
         buffer.write(token);
         final partialTurn = ConversationTurn(
           id: -1,

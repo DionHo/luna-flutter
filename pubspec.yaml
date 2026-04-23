@@ -19,8 +19,11 @@ dependencies:
   # On-device TTS
   kokoro_tts_flutter: ^0.2.0+1
 
-  # LLM inference — llama.cpp wrapper
-  nobodywho: ^1.0.0
+  # LLM inference — llama.cpp wrapper (v1.1.0+ required for Encoder/CrossEncoder RAG API)
+  nobodywho: ^1.1.0
+
+  # Markdown rendering for LLM responses (streaming-aware)
+  gpt_markdown: ^1.1.5
 
   # File path helpers (used with path_provider)
   path: ^1.9.0

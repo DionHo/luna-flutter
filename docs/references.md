@@ -7,7 +7,8 @@ codebase depends on.
 
 | Name | URL | Version | Rationale |
 |------|-----|---------|-----------|
-| nobodywho | https://pub.dev/packages/nobodywho | latest | Flutter FFI plugin wrapping llama.cpp for on-device GGUF model inference |
+| nobodywho | https://pub.dev/packages/nobodywho | ^1.1.0 | Flutter FFI plugin wrapping llama.cpp for on-device GGUF model inference; v1.1.0 adds `Encoder`, `CrossEncoder`, `cosineSimilarity`, and `Chat.stopGeneration` |
+| gpt_markdown | https://pub.dev/packages/gpt_markdown | ^1.1.5 | Streaming-aware Markdown renderer for Flutter; used in `MessageBubble` to render LLM responses with code highlighting |
 | kokoro_tts_flutter | https://pub.dev/packages/kokoro_tts_flutter | latest | Flutter plugin providing on-device Kokoro TTS synthesis |
 | flutter_riverpod | https://pub.dev/packages/flutter_riverpod | ^2.5.0 | Reactive state management with compile-time safe providers (ADR-001) |
 | sqflite | https://pub.dev/packages/sqflite | ^2.3.0 | SQLite bindings for Flutter; used by `ConversationRepository` |

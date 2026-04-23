@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 
 import '../../../core/models/message.dart';
 
@@ -11,6 +12,9 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUser = turn.role == 'user';
     final colorScheme = Theme.of(context).colorScheme;
+    final textStyle = TextStyle(
+      color: isUser ? colorScheme.onPrimary : colorScheme.onSurface,
+    );
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -24,12 +28,9 @@ class MessageBubble extends StatelessWidget {
           color: isUser ? colorScheme.primary : colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Text(
-          turn.content,
-          style: TextStyle(
-            color: isUser ? colorScheme.onPrimary : colorScheme.onSurface,
-          ),
-        ),
+        child: isUser
+            ? Text(turn.content, style: textStyle)
+            : GptMarkdown(turn.content, style: textStyle),
       ),
     );
   }

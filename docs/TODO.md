@@ -64,21 +64,34 @@
 - ✅ `test/audio_inference_test.dart` — no-UI integration test; confirms Gemma 4 audio path works on Linux
 - ✅ `test/text_inference_test.dart` — no-UI integration test; confirms Gemma 4 text path + `NobodyWho.init()` on Linux
 - ✅ `test/model_bootstrap_path_test.dart` — path construction unit tests; confirms bundle layout is correct
-- ✅ CI (`ci.yml`) runs all three model tests with cached model download
-- 🔧 Test on Windows desktop end-to-end (vcomp140.dll bundled in CI; awaiting re-test)
+- ✅ CI (`ci.yml`) runs all three model tests with cached model download (ubuntu-24.04 required for GLIBC 2.38)
+- ✅ `lib/core/services/embedding_service.dart` — `EmbeddingService` wrapping `nobodywho.Encoder` (semantic embeddings for RAG)
+- ✅ `lib/core/services/rag_service.dart` — `RagService` two-stage RAG pipeline (cosine-sim + cross-encoder reranking)
+- ✅ `LlmService.stopGeneration()` — cancels active token generation
+- ✅ `skipThinkingTags()` — stream helper stripping `<think>…</think>` blocks from LLM output
+- ✅ `MessageBubble` uses `gpt_markdown` for streaming-aware Markdown rendering of assistant responses
+- ✅ Windows CI bundles `vcomp140.dll` (OpenMP) and `vulkan-1.dll` (Vulkan Loader) from pre-installed SDK
+- 🔧 Test on Windows desktop end-to-end (awaiting re-test)
 - [ ] Android microphone permission + mobile model extraction
 - [ ] iOS microphone permission + mobile model extraction
 
 ## Phase 3 – Core Features
-- [ ] Streaming token display in chat UI (token-by-token)
+- [ ] Streaming token display in chat UI (token-by-token) — stop button wired to `ChatNotifier.stopGeneration()`
 - [ ] TTS playback with stop button
 - [ ] Conversation persistence (SQLite, survives restart)
 - [ ] Settings screen: GGUF model path picker
 - [ ] Settings screen: voice / language selection
 - [ ] App theme (dark / light toggle)
 
-## Phase 4 – Model Management
-- [ ] First-run model download flow (GGUF from HuggingFace)
+## Phase 4 – RAG & Knowledge Base
+- [ ] Download embedding model (`nomic-embed-text-v1.5` or similar) via `scripts/download_embedding_rerank.sh`
+- [ ] Download reranker model (`cross-encoder/ms-marco-MiniLM-L-6-v2` or similar)
+- [ ] Wire `EmbeddingService` + `RagService` into a `RagNotifier` provider
+- [ ] RAG screen: paste/type a knowledge base, ask questions with semantic retrieval
+- [ ] Integrate retrieved context into `LlmService.generate()` via system prompt injection
+
+## Phase 5 – Model Management
+- [ ] First-run model download flow (GGUF from HuggingFace via `hf://` URL support in nobodywho)
 - [ ] Runtime model switching without app restart
 - [ ] Model size / RAM warning for low-memory devices
 

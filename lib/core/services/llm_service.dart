@@ -86,5 +86,51 @@ class LlmService {
     }
   }
 
+  /// Cancels any in-progress token generation.
+  ///
+  /// Safe to call even when no generation is running.
+  void stopGeneration() {
+    _chat?.stopGeneration();
+  }
+
   ModelConfig? get currentConfig => _config;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/// Strips `<think>…</think>` reasoning blocks that some models (e.g. QwQ,
+/// DeepSeek-R1, Gemma 4) emit before their visible response.
+///
+/// Mirrors the `skipThinkingTags` helper from the nobodywho flutter-starter-example.
+Stream<String> skipThinkingTags(Stream<String> source) async* {
+  bool inThink = false;
+  var buffer = '';
+
+  await for (final chunk in source) {
+    buffer += chunk;
+
+    while (buffer.isNotEmpty) {
+      if (inThink) {
+        final endIdx = buffer.indexOf('</think>');
+        if (endIdx == -1) {
+          buffer = '';
+          break;
+        }
+        buffer = buffer.substring(endIdx + '</think>'.length);
+        inThink = false;
+      } else {
+        final startIdx = buffer.indexOf('<think>');
+        if (startIdx == -1) {
+          yield buffer;
+          buffer = '';
+          break;
+        }
+        if (startIdx > 0) yield buffer.substring(0, startIdx);
+        buffer = buffer.substring(startIdx + '<think>'.length);
+        inThink = true;
+      }
+    }
+  }
+
+  if (!inThink && buffer.isNotEmpty) yield buffer;
 }
