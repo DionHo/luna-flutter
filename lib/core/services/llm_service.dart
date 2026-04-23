@@ -104,33 +104,38 @@ class LlmService {
 /// Mirrors the `skipThinkingTags` helper from the nobodywho flutter-starter-example.
 Stream<String> skipThinkingTags(Stream<String> source) async* {
   bool inThink = false;
-  var buffer = '';
+  final sb = StringBuffer();
 
   await for (final chunk in source) {
-    buffer += chunk;
+    sb.write(chunk);
 
-    while (buffer.isNotEmpty) {
+    while (sb.isNotEmpty) {
+      final buffer = sb.toString();
       if (inThink) {
         final endIdx = buffer.indexOf('</think>');
         if (endIdx == -1) {
-          buffer = '';
+          sb.clear();
           break;
         }
-        buffer = buffer.substring(endIdx + '</think>'.length);
+        sb
+          ..clear()
+          ..write(buffer.substring(endIdx + '</think>'.length));
         inThink = false;
       } else {
         final startIdx = buffer.indexOf('<think>');
         if (startIdx == -1) {
           yield buffer;
-          buffer = '';
+          sb.clear();
           break;
         }
         if (startIdx > 0) yield buffer.substring(0, startIdx);
-        buffer = buffer.substring(startIdx + '<think>'.length);
+        sb
+          ..clear()
+          ..write(buffer.substring(startIdx + '<think>'.length));
         inThink = true;
       }
     }
   }
 
-  if (!inThink && buffer.isNotEmpty) yield buffer;
+  if (!inThink && sb.isNotEmpty) yield sb.toString();
 }
