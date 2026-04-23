@@ -34,6 +34,9 @@ dependencies:
   # Local database (conversation persistence)
   sqflite: ^2.3.0
 
+  # FFI-based sqflite backend required on Windows and Linux desktop
+  sqflite_common_ffi: ^2.3.0
+
 dev_dependencies:
   flutter_lints: ^4.0.0
 
