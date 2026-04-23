@@ -28,6 +28,9 @@ dependencies:
   # Platform file system paths
   path_provider: ^2.1.0
 
+  # Audio recording (microphone input for push-to-talk)
+  record: ^6.0.0
+
   # Lightweight key-value settings
   shared_preferences: ^2.2.0
 
@@ -50,7 +53,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/models/   # Placeholder directory; actual models are user-supplied at runtime
+    - assets/models/   # Bundled GGUF models (downloaded via scripts/download_models.sh)
 
 msix_config:
   display_name: Luna

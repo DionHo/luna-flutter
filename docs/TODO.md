@@ -7,7 +7,7 @@
 
 ---
 
-## Phase 0 – Project Setup
+## Phase 0 – Project Setup & Infrastructure
 - ✅ Repository initialised
 - ✅ `docs/s-ad/` arc42 architecture documentation written
 - ✅ `docs/references.md` created
@@ -15,6 +15,20 @@
 - ✅ `.gitignore` created
 - ✅ `.github/copilot-instructions.md` created
 - ✅ `.devcontainer/` — Ubuntu 24.04 devcontainer with Flutter stable, GTK3 deps, Git Graph, GitHub Copilot extensions
+- ✅ `.github/workflows/ci.yml` — analyze + test on every push/PR
+- ✅ `.github/workflows/build-linux.yml`
+- ✅ `.github/workflows/build-windows.yml`
+- ✅ `.github/workflows/build-android.yml`
+- ✅ `.github/workflows/build-ios.yml`
+- ✅ `scripts/build_linux.sh`
+- ✅ `scripts/build_android.sh`
+- ✅ `scripts/build_ios.sh`
+- ✅ `scripts/build_windows.ps1`
+- ✅ `scripts/build_all.sh` — runs analyze, tests, and all available platform builds
+- [ ] Validate Linux workflow produces a working bundle
+- [ ] Validate Windows workflow produces a working MSIX
+- [ ] Validate Android workflow produces a signed AAB
+- [ ] Validate iOS workflow produces a signed IPA (requires Apple Team ID secret)
 
 ## Phase 1 – Flutter Project Skeleton
 - ✅ `flutter create` — generate platform scaffolding for Linux, Windows, Android, iOS
@@ -39,25 +53,19 @@
 - ✅ `lib/features/settings/widgets/model_path_picker.dart`
 - [ ] `lib/features/chat/widgets/input_bar.dart` — kept as fallback; not used in main UI yet
 
-## Phase 2 – GitHub Actions CI/CD
-- ✅ `.github/workflows/ci.yml` — analyze + test on every push/PR
-- ✅ `.github/workflows/build-linux.yml`
-- ✅ `.github/workflows/build-windows.yml`
-- ✅ `.github/workflows/build-android.yml`
-- ✅ `.github/workflows/build-ios.yml`
-- [ ] Validate Linux workflow produces a working bundle
-- [ ] Validate Windows workflow produces a working MSIX
-- [ ] Validate Android workflow produces a signed AAB
-- [ ] Validate iOS workflow produces a signed IPA (requires Apple Team ID secret)
+## Phase 2 – AI Voice Assistant (Multimodal)
+- 🔧 `scripts/download_models.sh` — downloads Gemma 4 E2B + BF16 mmproj to `assets/models/`
+- 🔧 CI workflows updated — model download with `actions/cache` before flutter build
+- 🔧 `lib/core/services/model_bootstrap_service.dart` — locates bundled model files at runtime
+- 🔧 `lib/core/services/audio_recorder_service.dart` — microphone capture via `record` package
+- 🔧 `lib/core/services/llm_service.dart` — multimodal `Model.load` + `askWithPrompt(AudioPart)`
+- 🔧 `lib/features/chat/providers/chat_provider.dart` — PTT starts/stops recorder, sends audio to model
+- [ ] Test on Linux desktop (devcontainer) end-to-end
+- [ ] Test on Windows desktop end-to-end
+- [ ] Android microphone permission + mobile model extraction
+- [ ] iOS microphone permission + mobile model extraction
 
-## Phase 3 – Local Build Scripts
-- ✅ `scripts/build_linux.sh`
-- ✅ `scripts/build_android.sh`
-- ✅ `scripts/build_ios.sh`
-- ✅ `scripts/build_windows.ps1`
-- ✅ `scripts/build_all.sh` — runs analyze, tests, and all available platform builds
-
-## Phase 4 – Core Features
+## Phase 3 – Core Features
 - [ ] Streaming token display in chat UI (token-by-token)
 - [ ] TTS playback with stop button
 - [ ] Conversation persistence (SQLite, survives restart)
@@ -65,17 +73,15 @@
 - [ ] Settings screen: voice / language selection
 - [ ] App theme (dark / light toggle)
 
-## Phase 5 – Model Management
+## Phase 4 – Model Management
 - [ ] First-run model download flow (GGUF from HuggingFace)
 - [ ] Runtime model switching without app restart
 - [ ] Model size / RAM warning for low-memory devices
-
-## Phase 6 – Voice Input
-- [ ] Microphone capture (speech-to-text)
-- [ ] STT integration (whisper.cpp or on-device API)
 
 ## Known Issues / Blockers
 - `nobodywho` and `kokoro_tts_flutter` must be available on pub.dev and support
   all four target platforms — verify before Phase 1.
 - iOS build requires Apple Developer Team ID (`APPLE_TEAM_ID` secret).
 - Android AAB signing requires a keystore; see `docs/s-ad/07_deployment_view.md`.
+- Gemma 4 E2B models are large (~4 GB total); first build requires running
+  `scripts/download_models.sh` or relying on CI cache.

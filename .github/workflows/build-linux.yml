@@ -27,7 +27,8 @@ jobs:
             libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev \
             gstreamer1.0-plugins-good \
-            lld llvm
+            lld llvm \
+            libasound2-dev
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -37,6 +38,17 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Cache GGUF models
+        id: model-cache
+        uses: actions/cache@v4
+        with:
+          path: assets/models
+          key: models-gemma4-e2b-v1
+
+      - name: Download GGUF models (if not cached)
+        if: steps.model-cache.outputs.cache-hit != 'true'
+        run: bash scripts/download_models.sh
 
       - name: Build Linux release bundle
         run: flutter build linux --release

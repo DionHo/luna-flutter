@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -54,10 +56,10 @@ class ChatScreen extends ConsumerWidget {
             PushToTalkButton(
               isListening: state.isListening,
               enabled: !state.isGenerating,
-              onPressStart: () =>
-                  ref.read(chatProvider.notifier).startListening(),
-              onPressEnd: () =>
-                  ref.read(chatProvider.notifier).stopListening(),
+              onPressStart: () => unawaited(
+                  ref.read(chatProvider.notifier).startListening()),
+              onPressEnd: () => unawaited(
+                  ref.read(chatProvider.notifier).stopListening()),
             ),
           ],
         ),

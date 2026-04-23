@@ -5,6 +5,8 @@ import 'package:nobodywho/nobodywho.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'app.dart';
+import 'core/services/model_bootstrap_service.dart';
+import 'features/chat/providers/chat_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +27,23 @@ void main() async {
   } catch (_) {
     // Ignore: the app works in stub mode until the user picks a model.
   }
-  runApp(const ProviderScope(child: LunaApp()));
+
+  // Resolve bundled model paths.  Failures are non-fatal: the chat screen
+  // shows a placeholder message when the model is unavailable.
+  final bootstrap = ModelBootstrapService();
+  try {
+    await bootstrap.init();
+  } catch (_) {
+    // Model files not present (e.g. dev build without download_models.sh).
+  }
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        modelBootstrapProvider.overrideWithValue(bootstrap),
+      ],
+      child: const LunaApp(),
+    ),
+  );
 }
 
