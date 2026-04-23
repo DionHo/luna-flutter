@@ -5,6 +5,20 @@ for the repository: https://github.com/DionHo/luna-flutter/settings/secrets/acti
 
 ---
 
+## Public repositories and secrets safety
+
+GitHub Actions secrets are **safe to use in public repositories**. GitHub guarantees:
+
+- Secret values are **never printed** in workflow logs, even if you accidentally `echo` them — they are masked with `***`.
+- Secrets are **not passed to workflows triggered by pull requests from forks** by default. A fork-triggered PR workflow runs with read-only permissions and sees empty strings for all secrets, so no secret can be exfiltrated by a contributor submitting a malicious PR.
+- Secrets are only accessible to workflows in your repository and to repository/organization owners.
+
+**What this means for Luna Flutter:** the signing certificates and passwords stored as secrets cannot be read by the public, cannot be leaked in logs, and cannot be stolen via a fork PR.
+
+> ⚠️ If you ever push a workflow change that *explicitly* prints a secret (e.g. `echo "$MY_SECRET"`), GitHub redacts the output to `***` in the logs. Never use `set -x` (shell trace mode) in a step that handles secrets, as it may log intermediate variable values before masking kicks in.
+
+---
+
 ## iOS signing (`build-ios.yml`)
 
 All four secrets are required to produce a signed `.ipa`. Until they are set the
