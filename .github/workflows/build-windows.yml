@@ -44,30 +44,65 @@ jobs:
         continue-on-error: true
         run: dart run msix:create --no-sign
 
-      - name: Bundle vcomp140.dll (OpenMP runtime)
+      - name: Bundle required DLLs (vcomp140, vulkan-1)
         shell: pwsh
         run: |
-          # nobodywho_flutter.dll links against vcomp140.dll (the MSVC OpenMP runtime).
-          # Flutter does not bundle it automatically and it is not in the standard
-          # VC++ Redistributable, so we copy it from the VS 2022 installation here.
+          # nobodywho_flutter.dll is a Rust + llama.cpp MSVC binary compiled with
+          # two non-standard dependencies that are NOT in the system PATH on clean
+          # Windows installs:
+          #
+          #   vcomp140.dll  — MSVC OpenMP runtime (not part of the VC++ Redist)
+          #   vulkan-1.dll  — Vulkan Loader (installed by GPU drivers; absent on
+          #                   machines without a discrete GPU or fresh OS)
+          #
+          # Both are redistributable (Apache 2.0 / MSVC REDIST SUPPLEMENT).
+          # We bundle them so the app starts on any Windows 10/11 machine.
+          # On machines without a GPU, llama.cpp falls back to CPU automatically.
+
           $dest = "build\windows\x64\runner\Release"
 
-          # Prefer the x64 redistribution copy inside VS; fall back to System32.
-          $dll = Get-ChildItem `
+          # ── vcomp140.dll ─────────────────────────────────────────────────────
+          # Prefer the Redist x64 copy; fall back to System32.
+          $vcDll = Get-ChildItem `
             "C:\Program Files\Microsoft Visual Studio\2022" `
             -Recurse -Filter "vcomp140.dll" -ErrorAction SilentlyContinue |
             Where-Object { $_.FullName -notmatch "(?i)(arm|x86[^_]|amd64_x86)" } |
             Select-Object -First 1
 
-          if (-not $dll) {
-            $dll = Get-Item "C:\Windows\System32\vcomp140.dll" -ErrorAction SilentlyContinue
+          if (-not $vcDll) {
+            $vcDll = Get-Item "C:\Windows\System32\vcomp140.dll" -ErrorAction SilentlyContinue
           }
 
-          if ($dll) {
-            Copy-Item $dll.FullName $dest
-            Write-Host "Bundled vcomp140.dll from: $($dll.FullName)"
+          if ($vcDll) {
+            Copy-Item $vcDll.FullName $dest
+            Write-Host "Bundled vcomp140.dll from: $($vcDll.FullName)"
           } else {
-            Write-Error "vcomp140.dll not found on this runner — nobodywho will fail to load on machines without VS OpenMP installed."
+            Write-Error "vcomp140.dll not found — nobodywho will fail to load."
+            exit 1
+          }
+
+          # ── vulkan-1.dll ──────────────────────────────────────────────────────
+          # nobodywho_flutter.dll is compiled with the 'vulkan' llama.cpp feature
+          # (see nobodywho core/Cargo.toml) for GPU-accelerated inference.
+          # That creates a hard import of vulkan-1.dll at load time.
+          #
+          # We download the tiny (~1 MB) Vulkan Runtime installer from LunarG and
+          # install it silently; it drops vulkan-1.dll into System32.  The Vulkan
+          # Loader (Apache 2.0) gracefully reports zero physical devices when no
+          # GPU driver is present, so CPU fallback still works.
+          $vkVersion  = "1.3.296.0"
+          $vkRTUrl    = "https://sdk.lunarg.com/sdk/download/$vkVersion/windows/VulkanRT-$vkVersion-Installer.exe"
+          Write-Host "Downloading Vulkan Runtime $vkVersion..."
+          Invoke-WebRequest -Uri $vkRTUrl -OutFile VulkanRT.exe -UseBasicParsing
+          Write-Host "Installing Vulkan Runtime (silent)..."
+          Start-Process VulkanRT.exe -ArgumentList "/S" -Wait
+
+          $vkDll = Get-Item "C:\Windows\System32\vulkan-1.dll" -ErrorAction SilentlyContinue
+          if ($vkDll) {
+            Copy-Item $vkDll.FullName $dest
+            Write-Host "Bundled vulkan-1.dll from: $($vkDll.FullName)"
+          } else {
+            Write-Error "vulkan-1.dll not found after Vulkan Runtime install."
             exit 1
           }
 
