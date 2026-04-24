@@ -49,7 +49,7 @@ jobs:
         # install it explicitly here.  The humbletim action downloads only the
         # Loader + Headers components (not the full SDK), sets VULKAN_SDK, and
         # caches the download for subsequent runs.
-        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
         with:
           vulkan-query-version: 1.3.204.0
           vulkan-components: Vulkan-Headers, Vulkan-Loader
